@@ -1,4 +1,4 @@
-# Robust flow field reconstruction from limited measurements
+# Robust flow field reconstruction from limited measurements via sparse representation
 
 Code for data analysis and figures from J. Callaham, K. Maeda, and S. L. Brunton (2018)
 
