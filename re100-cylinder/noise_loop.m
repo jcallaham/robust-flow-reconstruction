@@ -11,6 +11,7 @@ define_measurements;  % Define or load measurement matrices C
 rms_vort = flow.avg_energy;
 mTrain = size(Train, 2);
 
+energy_rescale = true;
 
 %% Define dictionaries (just for efficiency)
 D_window = C_window*Train; 
@@ -40,7 +41,7 @@ for i=1:length(sigma)
             % Sparse representation in terms of the dictionary
             s = sp_approx(y, D_window, sigma(i), flow);  
             % Residual error in reconstruction (use only coefficients, not identified noise)            
-            [~, r] = reconstruct(x, Train, s, flow);
+            [~, r] = reconstruct(x, Train, s, flow, energy_rescale);
             res(1, i) = res(1, i) + r;
             res2(1, i) = res2(1, i) + r^2;
 
@@ -50,7 +51,7 @@ for i=1:length(sigma)
             % Sparse representation in terms of the dictionary
             s = sp_approx(y, D_rand, sigma(i), flow);  
             % Residual error in reconstruction
-            [~, r] = reconstruct(x, Train, s, flow);
+            [~, r] = reconstruct(x, Train, s, flow, energy_rescale);
             res(2, i) = res(2, i) + r;
             res2(2, i) = res2(2, i) + r^2;
             
@@ -60,7 +61,7 @@ for i=1:length(sigma)
             % Sparse representation in terms of the dictionary
             s = sp_approx(y, D_hslice, sigma(i), flow);  
             % Residual error in reconstruction
-            [~, r] = reconstruct(x, Train, s, flow);
+            [~, r] = reconstruct(x, Train, s, flow, energy_rescale);
             res(3, i) = res(3, i) + r;
             res2(3, i) = res2(3, i) + r^2;
             
@@ -69,7 +70,7 @@ for i=1:length(sigma)
             % Sparse representation in terms of the dictionary
             s = sp_approx(y, D_vslice, sigma(i), flow);  
             % Residual error in reconstruction
-            [~, r] = reconstruct(x, Train, s, flow);
+            [~, r] = reconstruct(x, Train, s, flow, energy_rescale);
             res(4, i) = res(4, i) + r;
             res2(4, i) = res2(4, i) + r^2;
         end

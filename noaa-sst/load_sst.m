@@ -12,8 +12,8 @@ flow.mTrain = 20*52;  % 20 years of weekly training data
 [Train, Test, ~, flow.mask] = partition(sst, flow.mTrain);
 flow.mean_flow = 0;  % Mean is subtracted, but we won't add it back in
 
-% No energy rescaling
-flow.avg_energy = NaN;
+% Calculate rms temperature fluctuations
+flow.avg_energy = double(mean( sqrt( mean(Train.^2, 1) ) ));
 
 % Helpful for plotting
 load('../utils/CCcool.mat')

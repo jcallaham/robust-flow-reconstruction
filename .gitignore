@@ -1,0 +1,6 @@
+data/*
+*~
+utils/cvx/*
+utils/ompbox10/*
+utils/ksvdbox13/*
+.DS_store

@@ -18,7 +18,7 @@ flow.mTrain = floor(0.9*flow.m);
 Train = vort(:, 1:flow.mTrain);
 Test = vort(:, flow.mTrain+1:end);
 flow.mean_flow = 0;  % No mean subtraction
-flow.avg_energy = NaN; % No energy rescaling
+flow.avg_energy = double(mean( sqrt( mean(Train.^2, 1) ) ));
 
 %% Helpful for plotting
 load('../utils/cmap_marine.mat', 'marine_full')

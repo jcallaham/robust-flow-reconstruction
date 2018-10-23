@@ -4,13 +4,15 @@ function s = sp_approx(y, D, sigma, flow)
 % INPUTS: D - dictionary (e.g. C*Train)
 %         y - measurements
 %         sigma - estimate of noise
-%         avg_energy - rms deviation from mean value in field
+%         flow - structure containing parameters of flow
 
  % Estimate of maximum allowable deviation in L2
-eps = max(3*sigma*flow.avg_energy*sqrt(length(y)), 0.1);  
+eps = max(3*sigma*flow.avg_energy*sqrt(length(y))...
+    , 0.5*flow.avg_energy*sqrt(length(y)));
+
 m = size(D, 2);
 
-cvx_begin quiet;
+cvx_begin;
     variable s(m);
     minimize( norm(s,1) );
     subject to

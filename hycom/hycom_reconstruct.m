@@ -40,23 +40,28 @@ x_measure(sensor_idx) = y+flow.mean_flow(sensor_idx);
 
 % Dictionary from measurements of training set 
 D = double(Train(sensor_idx, :));  
-omp_rescale = zeros(size(Train, 2), 1);
-% Normalize dictionary columns
-for j=1:flow.mTrain
-    omp_rescale(j) = norm(D(:, j));
-    D(:, j) = D(:, j)/omp_rescale(j);
-end
     
 %% Reconstruction - compare test image, global sparse reconstruction, gappy POD, and local sparse reconstruction
+
+%% OMP
+% omp_rescale = zeros(size(Train, 2), 1);
+% % Normalize dictionary columns
+% for j=1:flow.mTrain
+%     omp_rescale(j) = norm(D(:, j));
+%     D(:, j) = D(:, j)/omp_rescale(j);
+% end
+
 %K = 400;    % desired sparsity of solution (empirically estimated)
 % % Identify sparse coefficients with matching pursuit
 %s_sr = omp(D, y, D'*D, K); 
+%[x_sr, res_sr] = reconstruct(x, Train, full(s_sr).\omp_rescale, flow);
 
+%% L1  (much slower than OMP)
 disp('Computing sparse approximation')
 % Identify sparse coefficients
 s_sr = sp_approx(y, D, 0, flow);
+[x_sr, res_sr] = reconstruct(x, Train, full(s_sr), flow);
 % Reconstruct from sparse representation
-[x_sr, res_sr] = reconstruct(x, Train, full(s_sr).\omp_rescale, flow);
 K_sr = sum(abs(s_sr)>1e-6);
 
 disp('Computing gappy POD approximation')

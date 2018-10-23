@@ -7,7 +7,7 @@ load('utils/colorscheme.mat')  % From colorbrewer2.org - for plot lines
 %% Make errorbar plot
 figure(); hold on; grid on;
 for i=1:size(res, 1)
-    l = errorbar(eta, res(i, :), err(i, :));
+    l = errorbar(sigma, res(i, :), err(i, :));
     l.Color = colorscheme(i, :);
     l.LineStyle = '--';
     l.LineWidth=1.5;
@@ -52,7 +52,7 @@ cvx_begin;
     subject to
         norm(D*s - y, 2) <= eps;
 cvx_end;
-[x_hat, r] = reconstruct(x, Train, s, flow);
+[x_hat, r] = reconstruct(x, Train, s, flow, false);
 
 figure();
 subplot(311)
@@ -61,7 +61,7 @@ title(sprintf('Training dictionary, L2\n sigma = %0.2f, err = %0.4f', sigma, r))
 
 % Reconstruction by sparse approximation in the training library
 s = sp_approx(y, D, sigma, flow);
-[x_hat, r] = reconstruct(x, Train, s, flow);
+[x_hat, r] = reconstruct(x, Train, s, flow, true);
 
 subplot(312)
 plotCylinder(reshape(x_hat+flow.mean_flow, nx, ny), flow)
@@ -86,7 +86,7 @@ D_pod = C*ThetaPCA;  % Measured POD library
 
 % Reconstruction by sparse approximation in POD library
 s = sp_approx(y, D_pod, sigma, flow);
-[x_hat, r] = reconstruct(x, ThetaPCA, s, flow);
+[x_hat, r] = reconstruct(x, ThetaPCA, s, flow, false);
 
 subplot(313)
 plotCylinder(reshape(x_hat+flow.mean_flow, nx, ny), flow)

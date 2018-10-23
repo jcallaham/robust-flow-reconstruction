@@ -43,3 +43,23 @@ for i=1:4
         saveas(gcf, name);
     end
 end
+
+
+%% Plot histogram of sparsity for local vs global reconstruction
+load('output/mixing-layer/downsampled_sparsity.mat')
+
+figure();
+bin_edges = 0:1e-4:0.05;
+
+histogram(K_global_sr, 20, 'Normalization', 'probability'); hold on
+histogram(K_window_sr, 10, 'Normalization', 'probability');
+
+xlabel('Relative sparsity')
+ylabel('Frequency')
+
+grid on
+set(gcf, 'Position', [100 100 800 200])
+
+if SAVE_FIGS
+    saveas('FIG7_hist.svg', gcf)
+end

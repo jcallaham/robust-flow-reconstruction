@@ -1,4 +1,4 @@
-%% Plot example HYCOM reconstructions
+%% Plot example HYCOM reconstructions from downsampling
 % Jared Callaham 2018
 
 close all;
@@ -42,11 +42,11 @@ set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
 set(gca,'xtick',[]); set(gca,'ytick',[])
 colormap(1-gray);
 
-% Reconstructed field from sparse representation 
+% Reconstruction from kernel sparse representation
 figure()
-pcolor(reshape(x_sr+flow.mean_flow, ny, nx))
+pcolor(reshape(x_local_sr+flow.mean_flow, ny, nx))
 shading interp; caxis(flow.clim);
-title(sprintf('Sparse reconstruction\n ns = 4k, err: %0.2f', res_sr))
+title(sprintf('Kernel sparse reconstruction (k=%d, ns=4k)\n err: %0.2f', k, res_local_sr))
 set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
 set(gca,'xtick',[]); set(gca,'ytick',[])
 colormap(flow.cmap)
@@ -60,26 +60,9 @@ set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
 set(gca,'xtick',[]); set(gca,'ytick',[])
 colormap(flow.cmap)
 
-% Reconstruction from kernel sparse representation
-figure()
-pcolor(reshape(x_local_sr+flow.mean_flow, ny, nx))
-shading interp; caxis(flow.clim);
-title(sprintf('Kernel sparse reconstruction (k=%d, ns=4k)\n err: %0.2f', k, res_local_sr))
-set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
-set(gca,'xtick',[]); set(gca,'ytick',[])
-colormap(flow.cmap)
-
-% Reconstruction from kernel gappy POD
-figure()
-pcolor(reshape(x_local_pod+flow.mean_flow, ny, nx))
-shading interp; caxis(flow.clim);
-title(sprintf('Kernel POD reconstruction (k=%d, ns=4k)\n err: %0.2f', k, res_local_pod))
-set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
-set(gca,'xtick',[]); set(gca,'ytick',[])
-colormap(flow.cmap)
 
 %%
-labels = {'a', 'b', 'c', 'd', 'e', 'f'};
+labels = {'a', 'b', 'c', 'd'};
 for i=1:6
     set(figure(i) ,'Position',[100*i 100*i 2*length(lon) 2*length(lat)])
     

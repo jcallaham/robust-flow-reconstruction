@@ -13,6 +13,8 @@ ns = size(C, 1);
 rms_vort = flow.avg_energy;
 n = flow.n; mean_flow = flow.mean_flow;
 
+energy_rescale = true;
+
 %% Introduce sparse corruption and dense noise
 % Dense, low amplitude noise
 noise = sigma*rms_vort*randn(size(x));
@@ -34,10 +36,10 @@ y = C*x_corrupt;
 if rho>0   % Corruption
     B = [C*Train spdiags(ones(ns, 1), 0, ns, ns)];
     w = sp_approx(y, B, sigma, flow);
-    [x_hat, res] = reconstruct(x, Train, w(1:flow.mTrain), flow);
+    [x_hat, res] = reconstruct(x, Train, w(1:flow.mTrain), flow, energy_rescale);
 else  % Only dense noise
     s = sp_approx(y, C*Train, sigma, flow);
-    [x_hat, res] = reconstruct(x, Train, s, flow);
+    [x_hat, res] = reconstruct(x, Train, s, flow, energy_rescale);
 end
 
 end

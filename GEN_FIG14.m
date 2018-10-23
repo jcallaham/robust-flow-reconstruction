@@ -1,7 +1,6 @@
 close all;
 load('output/hycom/kernel_viz.mat')
 
-%% Plot weighted sum of approximate ranks
 nx = flow.nx; ny = flow.ny; mask = flow.mask;
 n = nx*ny;
 

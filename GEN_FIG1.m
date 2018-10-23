@@ -67,7 +67,7 @@ y = C*(x+noise);
 
 % Compute sparse approximation to the entire flow field and calculate error
 s = sp_approx(y, D, eta, flow);
-[x_hat, res] = reconstruct(x, Train, s, flow);
+[x_hat, res] = reconstruct(x, Train, s, flow, true);
 disp(res)
 
 %% Plot results

@@ -11,6 +11,8 @@ define_measurements;  % Define or load measurement matrices C
 mTrain = size(Train, 2);
 rms_vort = flow.avg_energy;
 
+energy_rescale = true;
+
 
 %% Define dictionaries (just for efficiency)
 % Extended dictionary to handle corruption
@@ -51,7 +53,7 @@ for i=1:length(rho)
             % Sparse representation in terms of the dictionary
             w = sp_approx(y, D_window, sigma, flow);  
             % Residual error in reconstruction (use only coefficients, not identified noise)            
-            [~, r] = reconstruct(x, Train, w(1:mTrain), flow);
+            [~, r] = reconstruct(x, Train, w(1:mTrain), flow, energy_rescale);
             res(1, i) = res(1, i) + r;
             res2(1, i) = res2(1, i) + r^2;
 
@@ -61,7 +63,7 @@ for i=1:length(rho)
             % Sparse representation in terms of the dictionary
             w = sp_approx(y, D_rand, sigma, flow);  
             % Residual error in reconstruction
-            [~, r] = reconstruct(x, Train, w(1:mTrain), flow);
+            [~, r] = reconstruct(x, Train, w(1:mTrain), flow, energy_rescale);
             res(2, i) = res(2, i) + r;
             res2(2, i) = res2(2, i) + r^2;
             
@@ -71,7 +73,7 @@ for i=1:length(rho)
             % Sparse representation in terms of the dictionary
             w = sp_approx(y, D_hslice, sigma, flow);  
             % Residual error in reconstruction
-            [~, r] = reconstruct(x, Train, w(1:mTrain), flow);
+            [~, r] = reconstruct(x, Train, w(1:mTrain), flow, energy_rescale);
             res(3, i) = res(3, i) + r;
             res2(3, i) = res2(3, i) + r^2;
             
@@ -80,7 +82,7 @@ for i=1:length(rho)
             % Sparse representation in terms of the dictionary
             w = sp_approx(y, D_vslice, sigma, flow);  
             % Residual error in reconstruction
-            [~, r] = reconstruct(x, Train, w(1:mTrain), flow);
+            [~, r] = reconstruct(x, Train, w(1:mTrain), flow, energy_rescale);
             res(4, i) = res(4, i) + r;
             res2(4, i) = res2(4, i) + r^2;
         end

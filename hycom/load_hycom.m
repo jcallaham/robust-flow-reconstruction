@@ -10,7 +10,7 @@ flow.m = size(vort, 2);
 
 [Train, Test, flow.mean_flow, flow.mask] = partition(vort, 0.9);
 flow.mean_flow = double(flow.mean_flow);
-flow.avg_energy = NaN;  % No energy rescaling
+flow.avg_energy = double(mean( sqrt( mean(Train.^2, 1) ) ));
 flow.mTrain = size(Train, 2);
 
 % Helpful for plotting

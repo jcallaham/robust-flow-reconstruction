@@ -21,20 +21,23 @@ if RUN_CODE
     run('re100-cylinder/reconstruction_loop.m')
     
     %% Mixing layer
-    % Reconstruction from downsampling (Fig 7) and coefficient ID (Fig 8)
+    % Reconstruction from downsampling (Fig 7)
     run('mixing-layer/ml_downsample.m')
+    run('mixing-layer/ml_down_sparsity.m')
     
-    % Reconstruction from windows (Fig 9)
-    run('mixing-layer/ml_local.m')
+    % Reconstruction from windows (Fig 8)
+    run('mixing-layer/ml_centerline.m')
     run('mixing-layer/ml_sparsity.m')
     
     %% NOAA sea surface temperature
     run('noaa-sst/remote_read.m')  % Download data from NOAA THREDDS server
-    run('noaa-sst/sst_reconstruct.m')  % Reconstruction (Fig 10)
+    run('noaa-sst/sst_reconstruct.m')  % Reconstruction (Fig 9)
     
     %% HYCOM Gulf of Mexico surface vorticity
     run('hycom/remote_read.m');   % Download data from HYCOM THREDDS server
-    run('hycom/hycom_reconstruct.m')  % Reconstruction (Fig 11)
+    run('hycom/hycom_reconstruct.m')  % Reconstruction (Fig 10)
+    
+    run('hycom/hycom_downsample.m')  % Downsampled reconstruction (Fig 11)
     
     run('hycom/kernel_demo.m')  % Demonstrate kernel scheme (Fig 14)
     
@@ -46,7 +49,7 @@ end
 
 
 %% Re=100 cylinder
-SAVE_FIGS = true;
+SAVE_FIGS = false;
 
 disp('Generating figure 1...')
 GEN_FIG1;  % Components for diagram of reconstruction method
@@ -71,24 +74,23 @@ close all
 disp('Generating figure 7...')
 GEN_FIG7;
 
-% Estimated POD coefficients (uses output from mixing-layer/ml_downsample.m)
+% Reconstruction from centerline measurements
 disp('Generating figure 8...')
 GEN_FIG8;
-
-% Reconstruction from windows (with sparsity subplot)
-disp('Generating figure 9...')
-GEN_FIG9;
 
 pause
 close all
 
 %% NOAA SST
-disp('Generating figure 10...')
-GEN_FIG10;   % Example reconstructions of sea surface temperature
+disp('Generating figure 9...')
+GEN_FIG9;   % Example reconstructions of sea surface temperature
 
 %% HYCOM
+disp('Generating figure 10...')
+GEN_FIG10;   % Example reconstructions of Gulf of Mexico vorticity
+
 disp('Generating figure 11...')
-GEN_FIG11;   % Example reconstructions of Gulf of Mexico vorticity
+GEN_FIG11;   % Example Gulf reconstructions from downsampling
 
 
 pause
@@ -100,7 +102,7 @@ disp('Generating figure 12...')
 GEN_FIG12;  % Uses output from pod_analysis.m (run above for figure 4)
 
 disp('Generating figure 13...')
-%GEN_FIG13;  % Error vs number of random point measurements
+GEN_FIG13;  % Error vs number of random point measurements
 
 %% Appendix: Generating kernels for HYCOM data
 disp('Generating figure 14...')

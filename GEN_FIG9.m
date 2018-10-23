@@ -1,91 +1,56 @@
-%% Plot local (windowed) reconstruction examples for the mixing layer and sparsity histogram
+%% Plot SST anomaly reconstructions
 %
-% Jared Callaham, 2018
+% Jared Callaham
 
-close all;
-% Load output from mixing-layer/ml_local.m
-load('output/mixing-layer/local_reconstructions.mat')
+clearvars -except SAVE_FIGS
+addpath(genpath('utils'));
 
+% Load output from noaa-sst/sst_reconstruct.m
+run('noaa-sst/sst_reconstruct.m')
+load('output/noaa-sst/reconstruction_examples.mat')
 
-%% Plot reconstructions and dotted boxes around windows
-figure(1)
-pcolor(reshape(x, ny, nx)); hold on; axis off
-title('Test field')
+%% Plot commands
+figure()
 
-figure(2)
-pcolor(reshape(x+noise, ny, nx)); hold on
-ylim([-1 ny+2]); axis off
-title('Noisy test field')
+% Plot truth
+subplot(221)
+pcolor(reshape(x, flow.ny, flow.nx));
+shading interp, caxis(flow.clim)
+title('Snapshot')
+set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
+set(gca,'xtick',[]); set(gca,'ytick',[])
 
-figure(3)
-pcolor(reshape(x_sr, ny, nx)); hold on; axis off
-title(sprintf('Sparse representation (global)\n err = %0.2f', res_sr));
+% Plot sparse reconstruction in training library
+subplot(222)
+pcolor(reshape(x_sr, flow.ny, flow.nx)); hold on
+shading interp, caxis(flow.clim)
+scatter(rand_locs(:, 2), rand_locs(:, 1), 25, 'k', 'filled')
+title(sprintf('%d measurements\n err: %0.4f', size(rand_locs, 1), res_sr) )
+set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
+set(gca,'xtick',[]); set(gca,'ytick',[])
 
-figure(4);
-pcolor(reshape(x_pod, ny, [])); hold on; axis off
-title(sprintf('Least-squares POD (global)\n err = %0.2f', res_pod))
+% Plot least-squares POD
+subplot(223)
+pcolor(reshape(x_pod, flow.ny, flow.nx)); hold on
+shading interp, caxis(flow.clim)
+scatter(rand_locs(:, 2), rand_locs(:, 1), 25, 'k', 'filled')
+title(sprintf('Gappy POD\n err: %0.4f', res_pod) )
+set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
+set(gca,'xtick',[]); set(gca,'ytick',[])
 
-figure(5)
-pcolor(reshape(x_kernel_sr, ny, nx)); hold on; axis off
-title(sprintf('Sparse representation (kernels), k=%d\nerr=%0.2f', k, res_kernel_sr));
+% Plot gappy POD (many more measurements)
+subplot(224)
+pcolor(reshape(x_gappy, flow.ny, flow.nx)); hold on
+shading interp, caxis(flow.clim)
+scatter(gappy_locs(:, 2), gappy_locs(:, 1), 25, 'k', 'filled')
+title(sprintf('%d measurements (gappy POD)\n err: %0.4f', size(gappy_locs, 1), res_gappy) )
+set(gca, 'Color', [100 100 100]/255);  % Set NaN (as background) to gray
+set(gca,'xtick',[]); set(gca,'ytick',[])
 
-figure(6)
-pcolor(reshape(x_kernel_pod, ny, nx)); hold on; axis off
-title(sprintf('Least squares POD (kernels), k=%d\nerr=%0.2f', k, res_kernel_pod));
+colormap(flow.cmap);
+set(gcf,'Position',[100 100 6*flow.nx 6*flow.ny])
 
-figure(7);
-pcolor(reshape(x_window_sr, ny, [])); hold on; axis off
-title('Sparse representation (window)')
-
-figure(8);
-pcolor(reshape(x_window_pod, ny, [])); hold on; axis off
-title('Least-squares POD (window)')
-
-
-% Plot dashed line around windows
-for i = 1:k
-    for j=[2 7 8]
-        figure(j)
-        plot([x0(i) x0(i)], [0 ny], 'k--', 'LineWidth', 1.5)
-        plot([x0(i) x0(i+1)], [ny, ny], 'k--', 'LineWidth', 1.5)
-        plot([x0(i+1) x0(i)], [0 0], 'k--', 'LineWidth', 1.5)
-        if i==length(x0)-1
-            plot([x0(i+1) x0(i+1)], [ny 0], 'k--', 'LineWidth', 1.5)
-        end
-    end
+%% Note: may have to save manually to get background (land) to be gray
+if SAVE_FIGS
+    saveas(gcf, 'figs/FIG9.svg')
 end
-
-% Plot sensor locations
-sensor_locs = [floor(sensor_idx/ny); mod(sensor_idx, ny)];
-for i=2:8
-    figure(i);
-    scatter(sensor_locs(1, :), sensor_locs(2, :), 20, 'k', 'Filled')
-end
-
-% Format and save
-labels = {'a', 'b', 'c', 'd', 'e', 'f'};
-for i=1:8
-    figure(i)
-    colormap(flow.cmap); shading flat; caxis(flow.clim); axis on
-    set(gcf, 'Position', [100*i 200*i 960, 225])
-    
-    if SAVE_FIGS && i<7  % Last two figures didn't go in the paper
-        name = sprintf('figs/FIG9_%s.png', labels{i});
-        saveas(gcf, name);
-    end
-end
-
-%% Plot histogram of sparsity for local vs global reconstruction
-load('output/mixing-layer/sparsity.mat')
-
-figure();
-bin_edges = 0:1e-4:0.05;
-
-histogram(K_global_sr, 20, 'Normalization', 'probability'); hold on
-histogram(K_window_sr, 10, 'Normalization', 'probability');
-
-xlabel('Relative sparsity')
-ylabel('Frequency')
-
-grid on
-set(gcf, 'Position', [100 100 800 200])

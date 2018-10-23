@@ -17,6 +17,8 @@ mTrain = size(Train, 2);
 C = C_vslice;   % Select from loaded matrices
 ns = size(C, 1);
 
+energy_rescale = true;
+
 %% POD library
 [U, Sigma, ~] = svd(Train, 'econ');  % Compute modes and singular values
 
@@ -67,19 +69,19 @@ for i=1:length(sigma)  % 1:length(sigma)
             %% Reconstructions
             % Training dictionary, L1 norm
             s = sp_approx(y, D_train, sigma(i), flow);
-            [~, r] = reconstruct(x, Train, s, flow);
+            [~, r] = reconstruct(x, Train, s, flow, energy_rescale);
             res(1, i) = res(1, i) + r;
             res2(1, i) = res2(1, i) + r^2;
 
             % K-SVD dictionary, L1
             s = sp_approx(y, D_ksvd, sigma(i), flow);
-            [~, r] = reconstruct(x, ThetaKSVD, s, flow);
+            [~, r] = reconstruct(x, ThetaKSVD, s, flow, energy_rescale);
             res(2, i) = res(2, i) + r;
             res2(2, i) = res2(2, i) + r^2;
 
             % PCA dictionary, L1
             s = sp_approx(y, D_pod, sigma(i), flow);
-            [~, r] = reconstruct(x, ThetaPCA, s, flow);
+            [~, r] = reconstruct(x, ThetaPCA, s, flow, energy_rescale);
             res(3, i) = res(3, i) + r;
             res2(3, i) = res2(3, i) + r^2;
 
@@ -90,7 +92,7 @@ for i=1:length(sigma)  % 1:length(sigma)
                 subject to
                     norm(D_pod*s - y,2) <= eps;
             cvx_end;
-            [~, r] = reconstruct(x, ThetaPCA, s, flow);
+            [~, r] = reconstruct(x, ThetaPCA, s, flow, energy_rescale);
             res(4, i) = res(4, i) + r;
             res2(4, i) = res2(4, i) + r^2;
             
@@ -101,7 +103,7 @@ for i=1:length(sigma)  % 1:length(sigma)
                 subject to
                     norm(D_train*s - y, 2) <= eps;
             cvx_end;
-            [~, r] = reconstruct(x, Train, s, flow);
+            [~, r] = reconstruct(x, Train, s, flow, energy_rescale);
             res(5, i) = res(5, i) + r;
             res2(5, i) = res2(5, i) + r^2;
         end

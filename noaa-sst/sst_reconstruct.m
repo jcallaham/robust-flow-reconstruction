@@ -7,23 +7,20 @@ warning('off', 'all');
 addpath(genpath('../utils'))
 
 %% Load and partition data
-% Note: no mean subtraction, no energy rescaling
+% Note: no mean subtraction (already done)
 load_sst;
 nx = flow.nx; ny = flow.ny;
 
+energy_rescale = false;
+
 %% Compute POD
 [U, Sigma, ~] = svd(Train, 'econ');  % Singular value decomposition
-
-% Optimal rank truncation by Gavish-Donoho threshold
 beta = size(Train, 2)/size(Train, 1); % Aspect ratio of data matrix
 thresh = optimal_SVHT_coef(beta,0) * median(diag(Sigma));
 r_GD = find(diag(Sigma)>thresh, 1, 'last');
-Ur = U(:, 1:r_GD);  % Rank truncation
-clearvars U;  % Free up some memory
 
 %% Reconstruction from random points
-t = 835;  % Choose test field (should something far from training set)
-
+t = 835;  % Choose test field (something far from training set)
 % Choose randomly from valid points between 50 deg S and 50 deg N
 ns = 10;
 sensor_idx = choose_sensors(ns, flow.mask, ny, lat);
@@ -36,14 +33,15 @@ y = double(x(sensor_idx)); % Noisy slice
 
 % Sparse approximation using training dictionary
 D = double(Train(sensor_idx, :));
-s = sp_approx(y, D, 0, flow);
+s = var_approx(y, D, 0.5);  % Optimal relaxation
 % Reconstruct temperature field (without energy rescaling)
-[x_sr, res_sr] = reconstruct(x, Train, full(s), flow); 
+[x_sr, res_sr] = reconstruct(x, Train, full(s), flow, energy_rescale); 
 disp(res_sr);
 
 %% Least-squares POD with same measurements
-s = lsqminnorm(Ur(sensor_idx, :), y);
-[x_pod, res_pod] = reconstruct(x, Ur, s, flow);
+r = 2;
+alpha = U(sensor_idx, 1:r)\y;
+[x_pod, res_pod] = reconstruct(x, U(:, 1:r), alpha, flow, false);
 disp(res_pod)
 
 %% Reconstruction with Gappy POD (using many more points)
@@ -58,8 +56,9 @@ gappy_locs = [mod(sensor_idx, ny) round(sensor_idx/ny)];  % (x, y) coordinates f
 
 % Gappy POD reconstruction
 y = x(sensor_idx);
-s = lsqminnorm(Ur(sensor_idx, :), y);
-[x_gappy, res_gappy] = reconstruct(x, Ur, s, flow);
+r = 50;
+alpha = U(sensor_idx, 1:r)\y;
+[x_gappy, res_gappy] = reconstruct(x, U(:, 1:r), alpha, flow, false);
 disp(res_gappy);
 
 %% Save results for plotting
@@ -86,3 +85,17 @@ for i=1:ns
 end
 
 end
+
+% Same as sp_approx function, but with variable relaxation epsilon
+function s = var_approx(y, D, eps)
+    m = size(D, 2);
+    cvx_begin quiet;
+        variable s(m);
+        minimize( norm(s,1) );
+        subject to
+            norm(D*s - y, 2) <= eps;
+    cvx_end;
+
+    s = double(s);  % Convert from cvx variable to regular float
+end
+

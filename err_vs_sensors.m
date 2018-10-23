@@ -41,7 +41,7 @@ for ns_idx=1:length(ns)
             y = x(sensor_idx);  % Measure field
             s = omp(D, y, D'*D, K); % Sparse approximation via OMP
 
-            [~, r] = reconstruct(x, Train, full(s)./omp_rescale, flow); 
+            [~, r] = reconstruct(x, Train, full(s)./omp_rescale, flow, false); 
             if ~isnan(r)
                 sst_res(ns_idx) = sst_res(ns_idx) + r;
                 res2(ns_idx) = res2(ns_idx) + r^2;
@@ -91,7 +91,7 @@ for ns_idx=1:length(ns)
             
             s = omp(D, y, D'*D, K); % Sparse approximation via OMP
 
-            [~, r] = reconstruct(x, Train, full(s)./omp_rescale, flow); 
+            [~, r] = reconstruct(x, Train, full(s)./omp_rescale, flow, false); 
             if ~isnan(r)
                 gom_res(ns_idx) = gom_res(ns_idx) + r;
                 res2(ns_idx) = res2(ns_idx) + r^2;
@@ -143,7 +143,7 @@ for noise_idx=1:length(sigma)
                 y = x(sensor_idx) + noise;  % Measure field
                 s = omp(D, y, D'*D, K); % Sparse approximation via OMP
 
-                [~, r] = reconstruct(x, Train, s./omp_rescale, flow);
+                [~, r] = reconstruct(x, Train, s./omp_rescale, flow, true);
                 if ~isnan(r)
                     cyl_res(noise_idx, ns_idx) = cyl_res(noise_idx, ns_idx) + r;
                     res2(ns_idx) = res2(ns_idx) + r^2;
@@ -196,8 +196,8 @@ for noise_idx=1:length(sigma)
                 x = double(Test(:, test_idx));      % Test field
                 noise = sigma(noise_idx)*rms_vort*randn([ns(ns_idx) 1]);
                 y = x(sensor_idx) + noise;  % Measure field
-                s = omp(D, y, D'*D, K); % Sparse approximation via OMP
-                [~, r] = reconstruct(x, Train, full(s)./omp_rescale, flow);
+                s = omp(D, y, D'*D, K); % Sparse approximation via OMP'
+                [~, r] = reconstruct(x, Train, full(s)./omp_rescale, flow, true);
                 if ~isnan(r)
                     ml_res(noise_idx, ns_idx) = ml_res(noise_idx, ns_idx) + r;
                     res2(ns_idx) = res2(ns_idx) + r^2;
